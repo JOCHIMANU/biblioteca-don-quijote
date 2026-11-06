@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    name: Pruebas (H2, PostgreSQL real y servidor real)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Compilar y probar
+        run: ./mvnw -B verify
+      - name: Informes de pruebas (si algo falla)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informes-de-pruebas
+          path: target/surefire-reports
+
+  docker:
+    name: La imagen de Docker se construye
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir la imagen
+        run: docker build -t biblioteca-don-quijote .
+      - name: Arrancarla y comprobar que responde
+        run: |
+          docker run -d --name biblioteca -p 8080:8080 -e BIBLIOTECA_CLAVE=clave-de-ci-12345 biblioteca-don-quijote
+          for i in $(seq 1 40); do
+            if curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then echo "UP"; break; fi
+            sleep 3
+          done
+          curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
+          # sin sesión, la portada manda a la entrada
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)" = "302"
+          curl -fsS http://localhost:8080/login | grep -q "Entrada a la biblioteca"
+      - name: Registro de la app (si algo falla)
+        if: failure()
+        run: docker logs biblioteca

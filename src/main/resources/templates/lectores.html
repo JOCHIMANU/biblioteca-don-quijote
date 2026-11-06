@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Memorial de lectores')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">II.</span> Memorial de lectores</h2>
+        <p class="capitular">
+            En este memorial se inscriben los hidalgos y damas que toman libros prestados, con el lugar donde
+            moran, su celular y su DNI, que ha de ser de ocho guarismos y no repetirse en otro lector.
+        </p>
+
+        <details class="plegable" th:attr="open=${abrirForm} ? 'open'">
+            <summary><svg class="icono"><use href="#tintero"/></svg> Inscribir un lector en el memorial</summary>
+            <form th:action="@{/lectores}" th:object="${form}" method="post" class="formulario" novalidate>
+                <div class="campo">
+                    <label for="dni">DNI</label>
+                    <input id="dni" type="text" th:field="*{dni}" inputmode="numeric" maxlength="8" placeholder="12345678" autocomplete="off"
+                           th:attr="data-consulta=@{/api/dni/}">
+                    <p class="ayuda-dni" id="dni-estado" aria-live="polite">Al escribir los ocho guarismos, el nombre se busca en el registro de RENIEC.</p>
+                    <p class="error-campo" th:errors="*{dni}"></p>
+                </div>
+                <div class="campo ancho">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" type="text" th:field="*{nombre}" maxlength="255">
+                    <p class="error-campo" th:errors="*{nombre}"></p>
+                </div>
+                <div class="campo ancho">
+                    <label for="domicilio">Domicilio (lugar donde mora)</label>
+                    <input id="domicilio" type="text" th:field="*{domicilio}" maxlength="255">
+                    <p class="error-campo" th:errors="*{domicilio}"></p>
+                </div>
+                <div class="campo">
+                    <label for="celular">Celular</label>
+                    <input id="celular" type="tel" th:field="*{celular}" maxlength="16" placeholder="987654321">
+                    <p class="error-campo" th:errors="*{celular}"></p>
+                </div>
+                <div class="campo accion">
+                    <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Inscribir lector</button>
+                </div>
+            </form>
+        </details>
+
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead>
+                <tr><th>Nombre</th><th>Domicilio</th><th>Celular</th><th>DNI</th><th>En su poder</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="l : ${lectores}">
+                    <td data-label="Nombre" class="titulo-libro">
+                        <a th:href="@{/lectores/{id}(id=${l.id})}" th:text="${l.nombre}" title="Ver historial de este lector">Nombre</a>
+                    </td>
+                    <td data-label="Domicilio" th:text="${l.domicilio}">Domicilio</td>
+                    <td data-label="Celular" th:text="${l.celular}">999</td>
+                    <td data-label="DNI" class="codigo" th:text="${l.dni}">12345678</td>
+                    <td data-label="En su poder" th:text="${enPoder.getOrDefault(l.id, 0L)} + ' libro(s)'">0</td>
+                    <td class="acciones-fila">
+                        <a class="enlace" th:href="@{/prestamos/nuevo(lectorId=${l.id})}">Prestar</a>
+                        <a class="enlace discreto" th:href="@{/lectores/{id}/editar(id=${l.id})}">Editar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(lectores)}"><td colspan="6" class="vacio">El memorial aguarda su primer lector.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

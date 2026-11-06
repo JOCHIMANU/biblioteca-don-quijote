@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Anaquel de libros')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">I.</span> Anaquel de libros</h2>
+        <p class="capitular">
+            Aquí están todos los libros que Don Quijote guarda, con la señal que escribe en el lomo para
+            hallarlos. Cada título es de ejemplar único: si anda en tierras ajenas, no puede prestarse otra vez
+            hasta que vuelva.
+        </p>
+
+        <details class="plegable" th:attr="open=${abrirForm} ? 'open'">
+            <summary><svg class="icono"><use href="#tintero"/></svg> Asentar un libro nuevo en el anaquel</summary>
+            <form th:action="@{/libros}" th:object="${form}" method="post" class="formulario" novalidate>
+                <div class="campo">
+                    <label for="codigo">Código del lomo</label>
+                    <input id="codigo" type="text" th:field="*{codigo}" maxlength="40" placeholder="CAB-016" autocomplete="off">
+                    <p class="error-campo" th:errors="*{codigo}"></p>
+                </div>
+                <div class="campo ancho">
+                    <label for="titulo">Título</label>
+                    <input id="titulo" type="text" th:field="*{titulo}" maxlength="255">
+                    <p class="error-campo" th:errors="*{titulo}"></p>
+                </div>
+                <div class="campo">
+                    <label for="autor">Autor</label>
+                    <input id="autor" type="text" th:field="*{autor}" maxlength="255">
+                    <p class="error-campo" th:errors="*{autor}"></p>
+                </div>
+                <div class="campo corto">
+                    <label for="anioImpresion">Año de impresión</label>
+                    <input id="anioImpresion" type="number" th:field="*{anioImpresion}" min="1000" max="2100" placeholder="1508">
+                    <p class="error-campo" th:errors="*{anioImpresion}"></p>
+                </div>
+                <div class="campo accion">
+                    <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Asentar libro</button>
+                </div>
+            </form>
+        </details>
+
+        <form th:action="@{/libros}" method="get" class="busqueda">
+            <label for="q" class="solo-lectores">Buscar en el anaquel</label>
+            <input id="q" type="search" name="q" th:value="${q}" placeholder="Buscar por título, autor o código…">
+            <button type="submit" class="boton sec">Buscar</button>
+            <a th:if="${!#strings.isEmpty(q)}" th:href="@{/libros}" class="enlace">Ver todos</a>
+        </form>
+
+        <p class="recuento"><span th:text="${#lists.size(libros)}">0</span> volúmenes a la vista ·
+            <a class="enlace" th:href="@{/reportes/libros.csv}">Descargar inventario (CSV)</a></p>
+
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead>
+                <tr><th>Lomo</th><th>Título</th><th>Autor</th><th>Impreso</th><th>Estado</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${libros}">
+                    <td data-label="Lomo" class="codigo" th:text="${v.libro().codigo}">CAB-001</td>
+                    <td data-label="Título" class="titulo-libro">
+                        <a th:href="@{/libros/{id}(id=${v.libro().id})}" th:text="${v.libro().titulo}" title="Ver historial de este libro">Título</a>
+                    </td>
+                    <td data-label="Autor" th:text="${v.libro().autor}">Autor</td>
+                    <td data-label="Impreso" th:text="${v.libro().anioImpresion}">1508</td>
+                    <td data-label="Estado">
+                        <span class="sello-estado verde" th:unless="${v.prestado()}" th:text="${v.estado()}">En el anaquel</span>
+                        <span class="sello-estado rojo" th:if="${v.prestado()}" th:text="${v.estado()}">Prestado</span>
+                        <span class="sello-estado moroso" th:if="${v.prestado() and morosoLibros.contains(v.libro().id)}">Moroso</span>
+                    </td>
+                    <td class="acciones-fila">
+                        <a th:unless="${v.prestado()}" class="enlace" th:href="@{/prestamos/nuevo(libroId=${v.libro().id})}">Prestar</a>
+                        <a th:if="${v.prestado()}" class="enlace" th:href="@{/prestamos/{id}/devolver(id=${v.prestamoActual().id})}">Devolver</a>
+                        <a class="enlace discreto" th:href="@{/libros/{id}/editar(id=${v.libro().id})}">Editar</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(libros)}"><td colspan="6" class="vacio">Ningún libro responde a tal descripción en este anaquel.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

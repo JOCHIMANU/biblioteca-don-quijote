@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Morosos')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">IV.</span> Libro de morosos</h2>
+        <p class="capitular">
+            Aquí constan los lectores que dejaron vencer el plazo sin devolver el libro, puestos por orden:
+            primero los de más días de atraso. A Sancho Panza toca ir a reclamarlos.
+        </p>
+
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead>
+                <tr><th>Atraso</th><th>Libro</th><th>Moroso</th><th>Celular</th><th>Domicilio</th><th>Debió volver el</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${morosos}" class="fila-moroso">
+                    <td data-label="Atraso">
+                        <span class="sello-estado moroso">Moroso</span>
+                        <strong class="plazo atraso apilado" th:text="${@fmt.dias(v.diasAtraso())}">8 días</strong>
+                    </td>
+                    <td data-label="Libro" class="titulo-libro"><a th:href="@{/libros/{id}(id=${v.prestamo().libro.id})}" th:text="${v.prestamo().libro.titulo}">Libro</a></td>
+                    <td data-label="Moroso"><a class="enlace" th:href="@{/lectores/{id}(id=${v.prestamo().lector.id})}" th:text="${v.prestamo().lector.nombre}">Lector</a></td>
+                    <td data-label="Celular" th:text="${v.prestamo().lector.celular}">999</td>
+                    <td data-label="Domicilio" th:text="${v.prestamo().lector.domicilio}">Domicilio</td>
+                    <td data-label="Debió volver el" th:text="${@fmt.fecha(v.fechaLimite())}">fecha</td>
+                    <td class="acciones-fila"><a class="enlace" th:href="@{/prestamos/{id}/devolver(id=${v.prestamo().id})}">Devolver</a></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(morosos)}"><td colspan="7" class="vacio">No hay morosos: todos los lectores cumplen como buenos cristianos.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="acciones">
+            <a class="boton sec" th:href="@{/palomas}">Ir al panel de palomas</a>
+            <a class="boton sec" th:href="@{/reportes/morosos.csv}">Descargar CSV</a>
+        </p>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Palomas mensajeras')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">V.</span> Palomas mensajeras</h2>
+        <p class="capitular">
+            Cuando un préstamo vence, la paloma trae un aviso para el escudero Sancho Panza con las señas del
+            libro y del lector. Sancho lo da por reclamado despachando la paloma. No se envía mensaje alguno
+            fuera de esta casa: todo queda escrito aquí.
+        </p>
+
+        <div class="paloma-hero">
+            <svg class="paloma-grande" viewBox="0 0 80 56" aria-hidden="true"><use href="#paloma"/></svg>
+            <div>
+                <p class="cifra-grande" th:text="${avisosPendientes}">0</p>
+                <p class="rotulo-grande" th:text="${avisosPendientes == 1} ? 'aviso aguarda a Sancho' : 'avisos aguardan a Sancho'">avisos</p>
+            </div>
+        </div>
+
+        <div class="cartas">
+            <article class="carta" th:each="a : ${pendientes}">
+                <header>
+                    <span class="sello-estado moroso" th:text="'Moroso · ' + ${@fmt.dias(a.diasAtraso())}">Moroso</span>
+                    <p class="para">Para el escudero Sancho Panza</p>
+                </header>
+                <dl>
+                    <dt>Libro</dt><dd class="titulo-libro" th:text="${a.aviso().prestamo.libro.titulo}">Libro</dd>
+                    <dt>Lector</dt><dd th:text="${a.aviso().prestamo.lector.nombre}">Lector</dd>
+                    <dt>Celular</dt><dd th:text="${a.aviso().prestamo.lector.celular}">999</dd>
+                    <dt>Domicilio</dt><dd th:text="${a.aviso().prestamo.lector.domicilio}">Domicilio</dd>
+                    <dt>Días de atraso</dt><dd><strong th:text="${a.diasAtraso()}">8</strong></dd>
+                </dl>
+                <form th:action="@{/palomas/{id}/reclamar(id=${a.aviso().id})}" method="post" class="despacho">
+                    <button type="submit" class="boton despachar"><svg class="icono"><use href="#paloma"/></svg> Despachar paloma</button>
+                </form>
+            </article>
+        </div>
+
+        <p class="vacio centro" th:if="${#lists.isEmpty(pendientes)}">
+            Ninguna paloma aguarda: todos los libros vuelven a su tiempo. ¡Descansa, Sancho!
+        </p>
+    </section>
+
+    <section th:if="${!#lists.isEmpty(reclamados)}">
+        <div th:replace="~{fragmentos :: floron}"></div>
+        <h2 class="seccion menor"><span class="numeral">§</span> Palomas ya despachadas</h2>
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead><tr><th>Libro</th><th>Lector</th><th>Aviso del</th><th>Despachada el</th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${reclamados}">
+                    <td data-label="Libro" class="titulo-libro" th:text="${a.prestamo.libro.titulo}">Libro</td>
+                    <td data-label="Lector" th:text="${a.prestamo.lector.nombre}">Lector</td>
+                    <td data-label="Aviso del" th:text="${@fmt.fecha(a.creado)}">fecha</td>
+                    <td data-label="Despachada el" th:text="${@fmt.fecha(a.reclamadoEl)}">fecha</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

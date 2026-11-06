@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Auditoría')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">VI.</span> Libro de auditoría</h2>
+        <p class="capitular">
+            Aquí queda escrito, sin que se pueda enmendar, todo lo que se hace en la biblioteca: préstamos,
+            devoluciones, anulaciones, borrados y cambios de reglas, con su fecha, el detalle, quién entró y desde
+            qué equipo lo hizo. Lo más reciente va primero.
+        </p>
+
+        <form th:action="@{/auditoria}" method="get" class="busqueda">
+            <label for="accion" class="solo-lectores">Filtrar por acción</label>
+            <select id="accion" name="accion" data-autoenviar>
+                <option value="">Todas las acciones</option>
+                <option th:each="a : ${acciones}" th:value="${a.name()}" th:text="${a.etiqueta}"
+                        th:selected="${filtro == a}">Acción</option>
+            </select>
+            <noscript><button type="submit" class="boton sec">Filtrar</button></noscript>
+            <a th:if="${filtro != null}" th:href="@{/auditoria}" class="enlace">Ver todas</a>
+        </form>
+
+        <p class="recuento">
+            <span th:text="${pagina.totalElements}">0</span> asientos
+            <span th:if="${pagina.totalPages > 1}"> · página <span th:text="${pagina.number + 1}">1</span>
+                de <span th:text="${pagina.totalPages}">1</span></span>
+        </p>
+
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead>
+                <tr><th>Cuándo</th><th>Acción</th><th>Detalle</th><th>Quién</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${pagina.content}">
+                    <td data-label="Cuándo" class="codigo" th:text="${@fmt.fechaHora(r.momento)}">30 oct. 2026, 15:42</td>
+                    <td data-label="Acción">
+                        <span class="sello-estado" th:classappend="${r.accion.delicada} ? 'rojo' : 'verde'"
+                              th:text="${r.accion.etiqueta}">Acción</span>
+                    </td>
+                    <td data-label="Detalle" class="detalle-auditoria" th:text="${r.detalle}">detalle</td>
+                    <td data-label="Quién" th:text="${r.origen != null ? r.origen : 'el sistema'}">admin · este equipo</td>
+                </tr>
+                <tr th:if="${pagina.empty}"><td colspan="4" class="vacio">Aún no hay asientos que mostrar.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="paginas" th:if="${pagina.totalPages > 1}" aria-label="Páginas del libro">
+            <a class="boton sec" th:if="${pagina.hasPrevious()}"
+               th:href="@{/auditoria(accion=${filtro != null ? filtro.name() : null}, pagina=${pagina.number - 1})}">← Más recientes</a>
+            <a class="boton sec" th:if="${pagina.hasNext()}"
+               th:href="@{/auditoria(accion=${filtro != null ? filtro.name() : null}, pagina=${pagina.number + 1})}">Más antiguos →</a>
+        </nav>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

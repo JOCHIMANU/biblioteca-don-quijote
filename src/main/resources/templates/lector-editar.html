@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Corregir lector')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">II.</span> Corregir un lector</h2>
+        <p class="capitular">
+            Enmendad aquí lo que se anotó mal de <span th:text="${lector.nombre}">lector</span>. El DNI ha de seguir
+            siendo de ocho guarismos y no repetirse en otro lector; sus préstamos conservan su historia.
+        </p>
+
+        <form th:action="@{/lectores/{id}/editar(id=${lector.id})}" th:object="${form}" method="post" class="formulario columna" novalidate>
+            <div class="campo">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" type="text" th:field="*{nombre}" maxlength="255">
+                <p class="error-campo" th:errors="*{nombre}"></p>
+            </div>
+            <div class="campo">
+                <label for="domicilio">Domicilio (lugar donde mora)</label>
+                <input id="domicilio" type="text" th:field="*{domicilio}" maxlength="255">
+                <p class="error-campo" th:errors="*{domicilio}"></p>
+            </div>
+            <div class="campo corto">
+                <label for="celular">Celular</label>
+                <input id="celular" type="tel" th:field="*{celular}" maxlength="16">
+                <p class="error-campo" th:errors="*{celular}"></p>
+            </div>
+            <div class="campo corto">
+                <label for="dni">DNI</label>
+                <input id="dni" type="text" th:field="*{dni}" inputmode="numeric" maxlength="8" autocomplete="off">
+                <p class="error-campo" th:errors="*{dni}"></p>
+            </div>
+            <div class="campo accion sellado">
+                <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Guardar correcciones</button>
+                <a class="enlace" th:href="@{/lectores/{id}(id=${lector.id})}">Volver sin cambios</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

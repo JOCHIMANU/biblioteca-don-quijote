@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Configuración')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">VII.</span> Configuración de la casa</h2>
+        <p class="capitular">
+            Aquí se fijan las reglas con que Don Quijote presta sus libros. Los cambios rigen para los préstamos
+            que se asienten desde ahora: los que ya andan en tierras ajenas conservan el plazo y la multa con que
+            salieron.
+        </p>
+
+        <form th:action="@{/configuracion}" th:object="${form}" method="post" class="formulario columna" novalidate>
+            <div class="campo corto">
+                <label for="plazoDias">Plazo del préstamo (días)</label>
+                <input id="plazoDias" type="number" th:field="*{plazoDias}" min="1" max="365">
+                <p class="ayuda-dni">Días que tiene el lector para devolver cada libro.</p>
+                <p class="error-campo" th:errors="*{plazoDias}"></p>
+            </div>
+            <div class="campo corto">
+                <label for="multaPorDia">Multa por día de retraso (soles)</label>
+                <input id="multaPorDia" type="number" th:field="*{multaPorDia}" min="0" max="1000">
+                <p class="ayuda-dni">Se cobra solo en soles. Con 0 no se cobra multa.</p>
+                <p class="error-campo" th:errors="*{multaPorDia}"></p>
+            </div>
+            <div class="campo corto">
+                <label for="maxLibrosPorLector">Máximo de libros por lector</label>
+                <input id="maxLibrosPorLector" type="number" th:field="*{maxLibrosPorLector}" min="0" max="100">
+                <p class="ayuda-dni">Cuántos libros puede tener fuera un mismo lector a la vez. Con 0 no hay límite.</p>
+                <p class="error-campo" th:errors="*{maxLibrosPorLector}"></p>
+            </div>
+            <div class="campo">
+                <label class="casilla">
+                    <input type="checkbox" th:field="*{bloquearMorosos}">
+                    No prestar a lectores que tengan libros vencidos
+                </label>
+                <p class="ayuda-dni">Si está marcada, un moroso no puede llevarse otro libro hasta devolver los vencidos.</p>
+            </div>
+            <div class="campo accion">
+                <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Guardar configuración</button>
+            </div>
+        </form>
+    </section>
+
+    <section id="reportes">
+        <div th:replace="~{fragmentos :: floron}"></div>
+        <h2 class="seccion menor"><span class="numeral">§</span> Reportes</h2>
+        <p class="capitular">
+            Descargad las listas de la casa en CSV: se abren con un doble clic en Excel o en cualquier hoja de cálculo.
+        </p>
+        <div class="tarjetas">
+            <a class="boton sec" th:href="@{/reportes/libros.csv}">Libros (inventario)</a>
+            <a class="boton sec" th:href="@{/reportes/lectores.csv}">Lectores</a>
+            <a class="boton sec" th:href="@{/reportes/prestamos.csv}">Registro de préstamos</a>
+            <a class="boton sec" th:href="@{/reportes/morosos.csv}">Morosos</a>
+        </div>
+        <form th:action="@{/reportes/multas.csv}" method="get" class="formulario columna">
+            <div class="campo corto">
+                <label for="desde">Multas cobradas, desde</label>
+                <input id="desde" type="date" name="desde" th:max="${hoy}">
+            </div>
+            <div class="campo corto">
+                <label for="hasta">hasta</label>
+                <input id="hasta" type="date" name="hasta" th:max="${hoy}">
+                <p class="ayuda-dni">Sin fechas, se toma desde el día 1 de este mes hasta hoy. El archivo trae el total al final.</p>
+            </div>
+            <div class="campo accion"><button type="submit" class="boton sec">Descargar multas cobradas</button></div>
+        </form>
+    </section>
+
+    <section id="respaldo">
+        <div th:replace="~{fragmentos :: floron}"></div>
+        <h2 class="seccion menor"><span class="numeral">§</span> Respaldo de la base de datos</h2>
+        <th:block th:if="${respaldoDisponible}">
+            <p class="capitular">
+                Guardad de vez en cuando una copia de toda la biblioteca (libros, lectores, préstamos, multas, avisos,
+                auditoría y configuración). Se descarga en un archivo .zip y puede hacerse con la app en uso.
+            </p>
+            <form th:action="@{/respaldo}" method="post">
+                <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Descargar respaldo</button>
+            </form>
+            <div class="ficha-respaldo">
+                <strong>Para restaurar una copia:</strong>
+                <ol>
+                    <li>Apagad la app (Ctrl+C en la terminal donde corre).</li>
+                    <li>Guardad aparte la carpeta <code>data/</code> actual, por si acaso.</li>
+                    <li>Descomprimid el .zip dentro de <code>data/</code>, reemplazando <code>biblioteca.mv.db</code>.</li>
+                    <li>Volved a arrancar la app.</li>
+                </ol>
+            </div>
+        </th:block>
+        <th:block th:unless="${respaldoDisponible}">
+            <p class="capitular">
+                Esta biblioteca guarda sus datos en <strong th:text="${baseDeDatos}">PostgreSQL</strong>, en la nube. La copia de
+                seguridad se hace desde el panel del proveedor de la base de datos (por ejemplo, las copias y
+                «branches» de Neon), que además restaura sin apagar nada. Los reportes en CSV de arriba sirven
+                como copia legible de las listas.
+            </p>
+        </th:block>
+    </section>
+
+    <section>
+        <div th:replace="~{fragmentos :: floron}"></div>
+        <h2 class="seccion menor"><span class="numeral">§</span> Ajustes del sistema</h2>
+        <p class="capitular">Estos se cambian fuera de la app, en <code>application.properties</code> o en <code>config/</code>; aquí solo se muestran.</p>
+        <dl class="ficha">
+            <div><dt>Ronda diaria de las palomas</dt><dd><code th:text="${cronPalomas}">0 0 8 * * *</code> (cron)</dd></div>
+            <div>
+                <dt>Consulta de DNI (Decolecta)</dt>
+                <dd>
+                    <span class="sello-estado verde" th:if="${tokenDecolecta}">Activa</span>
+                    <span class="sello-estado rojo" th:unless="${tokenDecolecta}">Sin token</span>
+                </dd>
+            </div>
+            <div><dt>Base de datos</dt><dd th:text="${baseDeDatos}">H2</dd></div>
+        </dl>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Página no hallada')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo ?: 0})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">§</span> ¡Válgame Dios!</h2>
+        <p class="capitular" th:text="${mensaje ?: 'Esta hoja del libro no existe o se la llevó el viento de los molinos.'}">Mensaje</p>
+        <p class="acciones centro">
+            <a class="boton" th:href="@{/}" th:text="${usuario != null} ? 'Volver al frontispicio' : 'Ir a la entrada'">Volver al frontispicio</a>
+        </p>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+</body>
+</html>

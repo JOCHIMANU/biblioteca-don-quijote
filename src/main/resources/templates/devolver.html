@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Devolución')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">III.</span> Devolución de un libro</h2>
+        <p class="capitular">
+            Revisad la cuenta antes de sellar: si el libro vuelve pasado el plazo, se cobra [[${@fmt.soles(multaPorDia)}]] por cada día
+            de retraso, y solo en soles, que aquí no se paga con quesos ni con otras especies.
+        </p>
+
+        <dl class="ficha">
+            <div><dt>Libro</dt><dd th:text="${p.libro.titulo} + ' (' + ${p.libro.codigo} + ')'">Libro</dd></div>
+            <div><dt>En manos de</dt><dd th:text="${p.lector.nombre}">Lector</dd></div>
+            <div><dt>Prestado el</dt><dd th:text="${@fmt.fecha(p.fechaPrestamo)}">fecha</dd></div>
+            <div><dt>Debía volver el</dt><dd th:text="${@fmt.fecha(limite)}">fecha</dd></div>
+        </dl>
+
+        <form th:action="@{/prestamos/{id}/devolver(id=${p.id})}" method="get" class="formulario columna recalculo"
+              th:attr="data-prestamo=${p.fechaPrestamo}, data-plazo=${plazo}, data-multa-dia=${multaPorDia}">
+            <div class="campo corto">
+                <label for="fecha">Fecha de devolución</label>
+                <input id="fecha" type="date" name="fecha" th:value="${fecha}" th:min="${p.fechaPrestamo}" th:max="${hoy}" required>
+            </div>
+            <noscript><button class="boton sec" type="submit">Recalcular multa</button></noscript>
+        </form>
+
+        <div class="cuenta" th:classappend="${multa > 0} ? 'con-multa' : 'sin-multa'" id="cuenta" aria-live="polite">
+            <p class="cuenta-rotulo">Multa a pagar</p>
+            <p class="cuenta-monto"><span id="multa-monto" th:text="${multa}">0</span> <span id="multa-unidad" th:text="${multa == 1} ? 'sol' : 'soles'">soles</span></p>
+            <p class="cuenta-detalle" id="multa-detalle"
+               th:text="${multa > 0} ? ${multa / multaPorDia} + ' día(s) de atraso × ' + ${multaPorDia} + ' sol por día' : 'Llega dentro del plazo: sin multa.'">detalle</p>
+        </div>
+
+        <form th:action="@{/prestamos/{id}/devolver(id=${p.id})}" method="post" class="formulario columna sello-form">
+            <input type="hidden" name="fecha" id="fecha-confirmada" th:value="${fecha}">
+            <div class="campo accion sellado">
+                <button type="submit" class="sello-btn" aria-label="Sellar y confirmar la devolución"><span>Devolver</span></button>
+                <a class="enlace" th:href="@{/prestamos}">Volver sin devolver</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

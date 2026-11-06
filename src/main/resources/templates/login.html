@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Entrada')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(0)}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">§</span> Entrada a la biblioteca</h2>
+        <p class="capitular">
+            Esta biblioteca solo se abre a quien conoce la contraseña de la casa. Mostrad vuestro nombre y la
+            palabra secreta, y las puertas del anaquel se abrirán.
+        </p>
+
+        <p class="aviso-error" th:if="${param.error}">Usuario o contraseña incorrectos. Mirad bien las letras e intentadlo otra vez.</p>
+        <p class="aviso-error" th:if="${param.bloqueado}">Demasiados intentos fallidos desde vuestro equipo: la puerta queda cerrada un buen rato. Volved a probar pasados unos minutos.</p>
+        <p class="aviso-error" th:if="${param.expirada}">Vuestra sesión caducó. Entrad de nuevo para seguir.</p>
+        <p class="aviso-ok sin-prefijo" th:if="${param.salio}">Habéis salido de la biblioteca. ¡Hasta la vista!</p>
+
+        <form th:action="@{/login}" method="post" class="formulario columna sello-form">
+            <div class="campo">
+                <label for="username">Usuario</label>
+                <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none"
+                       spellcheck="false" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="campo accion sellado">
+                <button type="submit" class="sello-btn" aria-label="Sellar y entrar"><span>Entrar</span></button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

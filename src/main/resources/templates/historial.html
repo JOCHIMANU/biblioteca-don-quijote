@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Historial')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion">
+            <span class="numeral" th:text="${porLibro} ? 'I.' : 'II.'">I.</span>
+            <span th:text="${porLibro} ? 'Historial del libro' : 'Historial del lector'">Historial</span>
+        </h2>
+        <p class="capitular historial-titulo"><b th:text="${titulo}">Título</b><br><small th:text="${detalle}">detalle</small></p>
+
+        <div class="acciones">
+            <a class="boton sec" th:href="${porLibro} ? @{/libros/{id}/editar(id=${sujetoId})} : @{/lectores/{id}/editar(id=${sujetoId})}">Editar datos</a>
+            <a class="boton" th:unless="${porLibro}" th:href="@{/prestamos/nuevo(lectorId=${sujetoId})}"><svg class="icono"><use href="#tintero"/></svg> Prestarle libros</a>
+            <a class="boton" th:if="${porLibro}" th:href="@{/prestamos/nuevo(libroId=${sujetoId})}"><svg class="icono"><use href="#tintero"/></svg> Prestar este libro</a>
+            <form th:if="${#lists.isEmpty(prestamos)}" method="post" class="en-linea"
+                  th:action="${porLibro} ? @{/libros/{id}/eliminar(id=${sujetoId})} : @{/lectores/{id}/eliminar(id=${sujetoId})}"
+                  th:attr="data-confirmar=|¿Borrar «${titulo}» para siempre? No consta ningún préstamo suyo, así que no se pierde ninguna cuenta.|">
+                <button type="submit" class="boton peligro">Borrar</button>
+            </form>
+        </div>
+        <p class="recuento" th:unless="${#lists.isEmpty(prestamos)}">
+            Tiene préstamos en su historial, por eso no puede borrarse. Si alguno se asentó por error, anuladlo en su fila.
+        </p>
+
+        <div class="tabla-envoltura">
+            <table class="cuaderno">
+                <thead>
+                <tr>
+                    <th th:text="${porLibro} ? 'Lector' : 'Libro'">Quién</th>
+                    <th>Prestado el</th><th>Devuelto el</th><th>Plazo</th><th>Multa</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${prestamos}" th:classappend="${v.moroso()} ? 'fila-moroso'">
+                    <td data-label="Quién" class="titulo-libro">
+                        <a th:if="${porLibro}" th:href="@{/lectores/{id}(id=${v.prestamo().lector.id})}" th:text="${v.prestamo().lector.nombre}">Lector</a>
+                        <a th:unless="${porLibro}" th:href="@{/libros/{id}(id=${v.prestamo().libro.id})}" th:text="${v.prestamo().libro.titulo}">Libro</a>
+                    </td>
+                    <td data-label="Prestado el" th:text="${@fmt.fecha(v.prestamo().fechaPrestamo)}">fecha</td>
+                    <td data-label="Devuelto el">
+                        <span th:if="${v.prestamo().fechaDevolucion != null}" th:text="${@fmt.fecha(v.prestamo().fechaDevolucion)}">fecha</span>
+                        <span class="sello-estado rojo" th:if="${v.prestamo().fechaDevolucion == null and !v.moroso()}">Prestado</span>
+                        <span class="sello-estado moroso" th:if="${v.moroso()}">Moroso</span>
+                    </td>
+                    <td data-label="Plazo" th:text="${@fmt.plazo(v)}">plazo</td>
+                    <td data-label="Multa">
+                        <span th:if="${v.prestamo().multa != null}" th:text="${@fmt.soles(v.prestamo().multa)}">0 soles</span>
+                        <span th:if="${v.prestamo().multa == null}">—</span>
+                    </td>
+                    <td class="acciones-fila">
+                        <a class="enlace" th:if="${v.prestamo().estaAbierto()}" th:href="@{/prestamos/{id}/devolver(id=${v.prestamo().id})}">Devolver</a>
+                        <form th:if="${v.prestamo().estaAbierto()}" method="post" class="en-linea"
+                              th:action="@{/prestamos/{id}/anular(id=${v.prestamo().id})}"
+                              th:attr="data-confirmar=|¿Anular el préstamo de «${v.prestamo().libro.titulo}» a ${v.prestamo().lector.nombre}? Se borra el asiento, como si nunca hubiera ocurrido.|">
+                            <input type="hidden" name="volver" th:value="${porLibro} ? '/libros/' + ${sujetoId} : '/lectores/' + ${sujetoId}">
+                            <button type="submit" class="enlace-boton peligro">Anular</button>
+                        </form>
+                        <form th:unless="${v.prestamo().estaAbierto()}" method="post" class="en-linea"
+                              th:action="@{/prestamos/{id}/deshacer-devolucion(id=${v.prestamo().id})}"
+                              th:attr="data-confirmar=|¿Deshacer la devolución de «${v.prestamo().libro.titulo}»? Volverá a figurar prestado a ${v.prestamo().lector.nombre} y se borrará su multa.|">
+                            <input type="hidden" name="volver" th:value="${porLibro} ? '/libros/' + ${sujetoId} : '/lectores/' + ${sujetoId}">
+                            <button type="submit" class="enlace-boton peligro">Deshacer devolución</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(prestamos)}"><td colspan="6" class="vacio">Aún no consta ningún préstamo en este renglón.</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="acciones"><a class="boton sec" th:href="${porLibro} ? @{/libros} : @{/lectores}">Volver al índice</a></p>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

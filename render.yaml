@@ -1,0 +1,31 @@
+# Blueprint de Render: crea el servicio web desde este repositorio (Render → New → Blueprint).
+# Los valores con «sync: false» NO están aquí a propósito: Render los pide al crear el servicio
+# (son secretos: la clave de entrada, la conexión a la base de datos y el token de Decolecta).
+services:
+  - type: web
+    name: biblioteca-don-quijote
+    runtime: docker
+    plan: free
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      - key: BIBLIOTECA_USUARIO
+        value: admin
+      - key: BIBLIOTECA_CLAVE
+        sync: false
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: DECOLECTA_TOKEN
+        sync: false
+      # detrás de https la cookie de sesión debe viajar solo cifrada
+      - key: COOKIE_SEGURA
+        value: "true"
+      # con la base vacía carga libros y lectores de ejemplo; ponlo en false para empezar en blanco
+      - key: DATOS_EJEMPLO
+        value: "true"
+      - key: DB_POOL
+        value: "4"

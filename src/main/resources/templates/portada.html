@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Frontispicio')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja">
+    <section>
+        <h2 class="seccion"><span class="numeral">§</span> Frontispicio</h2>
+        <p class="capitular">
+            En un lugar de la Mancha, de cuyo nombre sí quiero acordarme, tiene Don Quijote una biblioteca de
+            más de trescientos libros de caballerías, de cada uno un solo ejemplar. Aquí se asienta quién se
+            lleva cada tomo, para cuándo ha de volver, y cuánto debe pagar quien tarde en devolverlo. Su
+            escudero Sancho es quien sale a reclamar los vencidos.
+        </p>
+        <div th:replace="~{fragmentos :: floron}"></div>
+
+        <div class="cuadernillos">
+            <a class="cuadernillo" th:href="@{/libros}">
+                <span class="cifra" th:text="${totalLibros}">0</span>
+                <span class="rotulo">libros en la biblioteca</span>
+                <span class="detalle"><b th:text="${enAnaquel}">0</b> en el anaquel</span>
+            </a>
+            <a class="cuadernillo" th:href="@{/prestamos}">
+                <span class="cifra" th:text="${prestados}">0</span>
+                <span class="rotulo">libros en tierras ajenas</span>
+                <span class="detalle">fuera del anaquel</span>
+            </a>
+            <a class="cuadernillo alerta" th:href="@{/morosos}">
+                <span class="cifra" th:text="${morosos}">0</span>
+                <span class="rotulo">morosos</span>
+                <span class="detalle">plazo vencido, sin devolver</span>
+            </a>
+            <a class="cuadernillo" th:href="@{/lectores}">
+                <span class="cifra" th:text="${totalLectores}">0</span>
+                <span class="rotulo">lectores en el memorial</span>
+                <span class="detalle">inscritos con su DNI</span>
+            </a>
+            <a class="cuadernillo alerta" th:href="@{/palomas}">
+                <span class="cifra" th:text="${avisosPendientes}">0</span>
+                <span class="rotulo">palomas por despachar</span>
+                <span class="detalle">avisos para Sancho</span>
+            </a>
+        </div>
+
+        <p class="acciones centro">
+            <a class="boton" th:href="@{/prestamos/nuevo}"><svg class="icono"><use href="#tintero"/></svg> Asentar préstamo</a>
+            <a class="boton sec" th:href="@{/libros}">Ver el anaquel</a>
+        </p>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

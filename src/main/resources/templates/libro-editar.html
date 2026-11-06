@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Corregir libro')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">I.</span> Corregir un libro</h2>
+        <p class="capitular">
+            Enmendad aquí lo que se escribió mal de «<span th:text="${libro.titulo}">título</span>». El código ha de seguir
+            siendo único; los préstamos que ya constan conservan su historia.
+        </p>
+
+        <form th:action="@{/libros/{id}/editar(id=${libro.id})}" th:object="${form}" method="post" class="formulario columna" novalidate>
+            <div class="campo">
+                <label for="codigo">Código del lomo</label>
+                <input id="codigo" type="text" th:field="*{codigo}" maxlength="40" autocomplete="off">
+                <p class="error-campo" th:errors="*{codigo}"></p>
+            </div>
+            <div class="campo">
+                <label for="titulo">Título</label>
+                <input id="titulo" type="text" th:field="*{titulo}" maxlength="255">
+                <p class="error-campo" th:errors="*{titulo}"></p>
+            </div>
+            <div class="campo">
+                <label for="autor">Autor</label>
+                <input id="autor" type="text" th:field="*{autor}" maxlength="255">
+                <p class="error-campo" th:errors="*{autor}"></p>
+            </div>
+            <div class="campo corto">
+                <label for="anioImpresion">Año de impresión</label>
+                <input id="anioImpresion" type="number" th:field="*{anioImpresion}" min="1000" max="2100">
+                <p class="error-campo" th:errors="*{anioImpresion}"></p>
+            </div>
+            <div class="campo accion sellado">
+                <button type="submit" class="boton"><svg class="icono"><use href="#tintero"/></svg> Guardar correcciones</button>
+                <a class="enlace" th:href="@{/libros/{id}(id=${libro.id})}">Volver sin cambios</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

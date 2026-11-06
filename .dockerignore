@@ -1,0 +1,10 @@
+target/
+data/
+config/
+.git/
+.github/
+.idea/
+.vscode/
+*.log
+*.md
+Dockerfile

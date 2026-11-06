@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos :: cabeza('Asentar préstamo')}"></head>
+<body>
+<svg th:replace="~{fragmentos :: sprites}"></svg>
+<th:block th:replace="~{fragmentos :: encabezado(${activo})}"></th:block>
+
+<main class="hoja estrecha">
+    <section>
+        <h2 class="seccion"><span class="numeral">III.</span> Asentar préstamo</h2>
+        <p class="capitular">
+            Escoged al lector y agregad a la lista uno o varios libros del anaquel: escribid unas letras y
+            elegid de lo que se ofrece. Solo se ofrecen los libros que hoy descansan en su sitio. Cada libro queda
+            asentado por separado, con su plazo de [[${plazoDias}]] días y su propia multa; o se asientan todos, o ninguno.
+        </p>
+
+        <form th:action="@{/prestamos}" th:object="${form}" method="post" class="formulario columna sello-form" novalidate>
+            <div class="campo combo" th:attr="data-url=@{/api/lectores/buscar}" data-vacio="Ningún lector responde a esa descripción.">
+                <label for="lector-buscar">Lector</label>
+                <input type="hidden" th:field="*{lectorId}">
+                <input id="lector-buscar" type="text" class="combo-entrada" role="combobox" aria-autocomplete="list"
+                       aria-expanded="false" autocomplete="off" th:value="${lectorEtiqueta}"
+                       placeholder="Escribid nombre o DNI del lector…">
+                <ul class="combo-lista" role="listbox" hidden></ul>
+                <p class="error-campo" th:errors="*{lectorId}"></p>
+            </div>
+
+            <div class="campo combo combo-multi" th:attr="data-url=@{/api/libros/disponibles}" data-vacio="Ningún libro libre responde a esa descripción.">
+                <label for="libro-buscar">Libros que se lleva</label>
+                <ul class="elegidos" id="libros-elegidos" aria-label="Libros agregados">
+                    <li th:each="s : ${librosElegidos}" th:attr="data-id=${s.id()}">
+                        <span class="etiqueta" th:text="${s.etiqueta()}">CAB-001 · Amadís</span>
+                        <input type="hidden" name="libroIds" th:value="${s.id()}">
+                        <button type="button" class="quitar" th:attr="aria-label='Quitar ' + ${s.etiqueta()}" title="Quitar de la lista">&times;</button>
+                    </li>
+                </ul>
+                <p class="cuenta-libros" id="libros-cuenta" aria-live="polite"></p>
+                <input id="libro-buscar" type="text" class="combo-entrada" role="combobox" aria-autocomplete="list"
+                       aria-expanded="false" autocomplete="off"
+                       placeholder="Escribid título, autor o código del lomo para agregar un libro…">
+                <ul class="combo-lista" role="listbox" hidden></ul>
+                <p class="error-campo" th:errors="*{libroIds}"></p>
+            </div>
+
+            <div class="campo corto">
+                <label for="fecha">Fecha del préstamo</label>
+                <input id="fecha" type="date" th:field="*{fecha}" th:max="${hoy}">
+                <p class="error-campo" th:errors="*{fecha}"></p>
+            </div>
+            <div class="campo accion sellado">
+                <button type="submit" class="sello-btn" aria-label="Sellar y asentar el préstamo"><span>Sellar</span></button>
+                <a class="enlace" th:href="@{/prestamos}">Volver sin asentar</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragmentos :: pie}"></footer>
+<script th:src="@{/js/biblioteca.js}"></script>
+</body>
+</html>

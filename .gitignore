@@ -1,0 +1,10 @@
+target/
+data/
+config/
+*.mv.db
+*.trace.db
+*.log
+.idea/
+*.iml
+.vscode/
+.claude/
