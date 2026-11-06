@@ -10,9 +10,13 @@ RUN sh mvnw -q -B -DskipTests package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-RUN useradd --system --uid 1001 biblioteca
+RUN useradd --system --uid 1001 biblioteca \
+    && mkdir -p /app/data \
+    && chown -R biblioteca /app
 COPY --from=construir /app/target/biblioteca-*.jar /app/biblioteca.jar
 USER biblioteca
+# Sin base de datos externa la app usa H2 en /app/data (sirve para probar la imagen; en la nube se usa PostgreSQL)
+VOLUME /app/data
 
 # Memoria justa para los planes gratuitos (512 MB) y arranque rápido
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -XX:TieredStopAtLevel=1"
