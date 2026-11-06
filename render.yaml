@@ -29,3 +29,6 @@ services:
         value: "true"
       - key: DB_POOL
         value: "4"
+      # «hoy» y los atrasos se cuentan en hora de Lima, no en la del servidor (UTC)
+      - key: ZONA_HORARIA
+        value: America/Lima

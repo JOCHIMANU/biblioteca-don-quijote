@@ -71,7 +71,9 @@ gratuito que evita que Render la duerma**. Los tres tienen plan gratuito y se en
 
 1. Crea una cuenta en <https://neon.tech> (con GitHub) y un proyecto nuevo.
 2. En el panel, en **Connection Details**, apunta: *host*, *database*, *user* y *password*.
-3. Tu URL de conexión será: `jdbc:postgresql://HOST/DATABASE?sslmode=require`
+3. Tu URL de conexión será: `jdbc:postgresql://HOST/DATABASE?sslmode=require`  
+   Usa el *host* **directo** (el que no lleva `-pooler` en el nombre): la app ya trae su propio grupo de
+   conexiones. No copies `channel_binding=require` de la cadena de ejemplo de Neon; el driver de Java no lo usa.
 
 ### 2. La app (Render)
 
@@ -112,6 +114,7 @@ correo si la app se cae.
 | `DATOS_EJEMPLO` | Cargar datos de ejemplo con la base vacía | `true` |
 | `PORT` | Puerto (lo fija el proveedor) | `8080` |
 | `DB_POOL` | Conexiones máximas a la base | `5` |
+| `ZONA_HORARIA` | Zona de la biblioteca: de ella dependen «hoy», los atrasos y la ronda de palomas | `America/Lima` |
 
 ### Otros proveedores
 

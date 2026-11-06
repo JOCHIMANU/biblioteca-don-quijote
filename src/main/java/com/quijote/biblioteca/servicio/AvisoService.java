@@ -51,7 +51,7 @@ public class AvisoService {
         log.info("Paloma mensajera al arrancar: {} aviso(s) nuevo(s).", generarAvisos());
     }
 
-    @Scheduled(cron = "${biblioteca.cron-palomas:0 0 8 * * *}")
+    @Scheduled(cron = "${biblioteca.cron-palomas:0 0 8 * * *}", zone = "${biblioteca.zona-horaria:America/Lima}")
     public void tareaDiaria() {
         log.info("Paloma mensajera, ronda diaria: {} aviso(s) nuevo(s).", generarAvisos());
     }

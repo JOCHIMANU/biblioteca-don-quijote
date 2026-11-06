@@ -1,10 +1,12 @@
-target/
-data/
-config/
+# Los patrones empiezan por «/» para valer solo en la raíz del proyecto.
+# (Sin la barra, «config/» también ignoraría el paquete de código src/main/java/.../config.)
+/target/
+/data/
+/config/
+/.claude/
 *.mv.db
 *.trace.db
 *.log
 .idea/
 *.iml
 .vscode/
-.claude/
